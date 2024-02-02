@@ -1,6 +1,6 @@
 from typing import Callable, Generic, Type, TypeVar, TypeAlias, Any, final
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class RegisterMeta(type):
@@ -16,8 +16,8 @@ class RegisterMeta(type):
     def __setitem__(cls, key: str, value: Type[T] | Callable[..., Any]) -> None:
         cls.__setitem__(key, value)
 
-    def __call__(cls):
-        raise Exception("Register can not be instantiated!")
+    def __call__(cls, target: Type[T] | Callable[..., Any] | str):
+        return cls.register(target)
 
 
 class Register(Generic[T], metaclass=RegisterMeta):
@@ -31,20 +31,29 @@ class Register(Generic[T], metaclass=RegisterMeta):
         return cls._dict
 
     @classmethod
-    def add_item(cls, key: str, value: Type[T] | Callable[..., Any]) -> Type[T] | Callable[..., Any]:
+    def add_item(
+        cls, key: str, value: Type[T] | Callable[..., Any]
+    ) -> Type[T] | Callable[..., Any]:
         if not callable(value):
             raise Exception(f"Error:{value} must be callable!")
         if key in cls:
             print(
-                f"\033[31m[Warning]:\033[0m {key} already exists and will be overwritten!")
+                f"\033[31m[Warning]:\033[0m {key} already exists and will be overwritten!"
+            )
         cls[key] = value
         return value
 
     @classmethod
-    def register(cls, target: Type[T] | Callable[..., Any] | str) -> Type[T] | Callable[..., Any] | Callable[[Type[T] | Callable[..., Any]], Type[T] | Callable[..., Any]]:
-        if callable(target):    # 传入的target可调用 --> 没有给注册名 --> 传入的函数名或类名作为注册名
+    def register(
+        cls, target: Type[T] | Callable[..., Any] | str
+    ) -> (
+        Type[T]
+        | Callable[..., Any]
+        | Callable[[Type[T] | Callable[..., Any]], Type[T] | Callable[..., Any]]
+    ):
+        if callable(target):  # 传入的target可调用 --> 没有给注册名 --> 传入的函数名或类名作为注册名
             return cls.add_item(target.__name__, target)
-        else:                   # 不可调用 --> 传入了注册名 --> 作为可调用对象的注册名
+        else:  # 不可调用 --> 传入了注册名 --> 作为可调用对象的注册名
             return lambda x: cls.add_item(target, x)
 
     @classmethod
@@ -76,8 +85,9 @@ class Register(Generic[T], metaclass=RegisterMeta):
         return cls.get_dict().items()
 
 
-if __name__ == '__main__':
-    @Register.register('f1')
+if __name__ == "__main__":
+
+    @Register.register("f1")
     def func():
         pass
 
@@ -85,8 +95,13 @@ if __name__ == '__main__':
     def func():
         pass
 
-    @Register.register
+    @Register
     def func():
         pass
-    print(Register['f1'])
+
+    @Register("f3")
+    def func():
+        pass
+
+    print(Register["f1"])
     print(Register)
