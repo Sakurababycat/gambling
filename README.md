@@ -1,2 +1,3 @@
 # gambling
-gambling policy race 
+
+gambling strategy race

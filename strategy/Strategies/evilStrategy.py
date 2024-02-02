@@ -1,10 +1,11 @@
-from policy import PolicyRegister, BasePolicy
+from strategy import StrategyRegister, BaseStrategy, override
 
 
-@PolicyRegister.register
-class Evil(BasePolicy):
+@StrategyRegister
+class Evil(BaseStrategy):
     def __init__(self):
         ...
 
+    @override
     def step(self, lh: list[bool], rh: list[bool]) -> bool:
         return False
