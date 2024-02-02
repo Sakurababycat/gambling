@@ -23,6 +23,15 @@ class BasePolicy(RegisterDecorator):
     def step(self, lh: list[bool], rh: list[bool]):
         pass
 
+    @classmethod
+    def _makePolicy(cls, name=None, *args, **kwargs) -> "BasePolicy":
+        name = name if name else cls.__name__
+        return (name, PolicyRegister[cls.__name__](*args, **kwargs))
+
+    @classmethod
+    def makePolicy(cls):
+        return cls._makePolicy()
+
 
 T = TypeVar("T", bound=BasePolicy)
 

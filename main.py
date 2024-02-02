@@ -1,3 +1,7 @@
 from policy import PolicyRegister
 
-print(PolicyRegister)
+policyPool = []
+for key, policyClass in PolicyRegister.items():
+    policyPool += policyClass.makePolicy()
+
+print(policyPool)
